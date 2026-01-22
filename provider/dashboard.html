@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Dashboard - ServiceHub</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-1"></div>
+        <div class="gradient-2"></div>
+        <div class="gradient-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-dashboard">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="logo-icon">⚙️</span>
+                <span class="logo-text">ServiceHub</span>
+            </a>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link active">Dashboard</a></li>
+                <li><a href="assigned-requests.html" class="nav-link">Assigned Requests</a></li>
+                <li><button id="logoutBtn" class="btn btn-secondary">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Welcome, <span id="providerName">Provider</span>!</h1>
+            <p>Manage your service requests and grow your business</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Performance Stats -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3 id="activeRequests">0</h3>
+                        <p>Active Requests</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 id="completedCount">0</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-content">
+                        <h3 id="ratingDisplay">-</h3>
+                        <p>Rating</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3 id="serviceType">-</h3>
+                        <p>Service Type</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="assigned-requests.html" class="action-card">
+                        <div class="action-icon">📋</div>
+                        <h3>View Requests</h3>
+                        <p>Check assigned service requests</p>
+                    </a>
+                    <button onclick="viewProfile()" class="action-card">
+                        <div class="action-icon">👤</div>
+                        <h3>My Profile</h3>
+                        <p>Update your business profile</p>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Available Requests -->
+            <section class="available-requests">
+                <h2>Available Service Requests</h2>
+                <div id="availableList" class="requests-list">
+                    <p class="empty-state">No available requests at the moment.</p>
+                </div>
+            </section>
+
+            <!-- Active Requests -->
+            <section class="active-requests">
+                <h2>Your Active Requests</h2>
+                <div id="activeList" class="requests-list">
+                    <p class="empty-state">No active requests.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="profileDetail"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 ServiceHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/script.js"></script>
+    <script>
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || currentUser.role !== 'provider') {
+            window.location.href = '../auth/provider-login.html';
+        }
+
+        document.getElementById('providerName').textContent = currentUser.businessName;
+        document.getElementById('serviceType').textContent = currentUser.serviceType;
+
+        function loadDashboard() {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            
+            // Get assigned requests to this provider
+            const assignedRequests = requests.filter(r => r.assignedProviderId === currentUser.id);
+            
+            // Get available requests (same service type, not assigned yet)
+            const availableRequests = requests.filter(r => 
+                r.serviceType === currentUser.serviceType && 
+                r.status === 'Pending' &&
+                !r.assignedProviderId
+            );
+
+            // Calculate stats
+            const active = assignedRequests.filter(r => 
+                r.status === 'Accepted' || r.status === 'In Progress'
+            ).length;
+
+            const completed = assignedRequests.filter(r => 
+                r.status === 'Completed'
+            ).length;
+
+            document.getElementById('activeRequests').textContent = active;
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('ratingDisplay').textContent = (currentUser.rating || 0).toFixed(1);
+
+            // Display available requests
+            const availableList = document.getElementById('availableList');
+            if (availableRequests.length === 0) {
+                availableList.innerHTML = '<p class="empty-state">No available requests at the moment.</p>';
+            } else {
+                availableList.innerHTML = availableRequests.map(req => `
+                    <div class="request-item">
+                        <div class="request-header">
+                            <h4>${req.customerName}</h4>
+                            <span class="priority-badge priority-${req.priority.toLowerCase()}">${req.priority}</span>
+                        </div>
+                        <p class="request-desc">${req.description.substring(0, 100)}...</p>
+                        <p><small>${req.address}</small></p>
+                        <div class="request-footer">
+                            <small>${new Date(req.createdDate).toLocaleDateString()}</small>
+                            <button onclick="acceptRequest(${req.id})" class="btn btn-small">Accept</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Display active requests
+            const activeList = document.getElementById('activeList');
+            const activeRequests = assignedRequests.filter(r => 
+                r.status === 'Accepted' || r.status === 'In Progress'
+            );
+
+            if (activeRequests.length === 0) {
+                activeList.innerHTML = '<p class="empty-state">No active requests.</p>';
+            } else {
+                activeList.innerHTML = activeRequests.map(req => `
+                    <div class="request-item">
+                        <div class="request-header">
+                            <h4>${req.customerName}</h4>
+                            <span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span>
+                        </div>
+                        <p class="request-desc">${req.description.substring(0, 100)}...</p>
+                        <div class="request-footer">
+                            <small>${new Date(req.createdDate).toLocaleDateString()}</small>
+                            <a href="assigned-requests.html" class="link">View Details</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        window.acceptRequest = function(requestId) {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            const request = requests.find(r => r.id === requestId);
+
+            if (request) {
+                request.assignedProviderId = currentUser.id;
+                request.assignedProviderName = currentUser.businessName;
+                request.status = 'Accepted';
+                request.updatedDate = new Date().toISOString();
+
+                localStorage.setItem('requests', JSON.stringify(requests));
+                loadDashboard();
+                
+                alert('Request accepted! You can now manage this request.');
+            }
+        };
+
+        window.viewProfile = function() {
+            const modal = document.getElementById('profileModal');
+            const detail = document.getElementById('profileDetail');
+
+            detail.innerHTML = `
+                <div class="profile-detail">
+                    <h2>Business Profile</h2>
+                    <div class="profile-info">
+                        <div class="profile-field">
+                            <label>Business Name</label>
+                            <p>${currentUser.businessName}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Owner Name</label>
+                            <p>${currentUser.ownerName}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Service Type</label>
+                            <p>${currentUser.serviceType}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Email</label>
+                            <p>${currentUser.email}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Phone</label>
+                            <p>${currentUser.phone}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Address</label>
+                            <p>${currentUser.address}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Rating</label>
+                            <p>${(currentUser.rating || 0).toFixed(1)} ⭐</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Completed Requests</label>
+                            <p>${currentUser.completedRequests || 0}</p>
+                        </div>
+                        <div class="profile-field">
+                            <label>Member Since</label>
+                            <p>${new Date(currentUser.registeredDate).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        };
+
+        // Modal close
+        const modal = document.getElementById('profileModal');
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        });
+
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        if (hamburger) {
+            hamburger.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+            });
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>
