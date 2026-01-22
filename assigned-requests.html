@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assigned Requests - ServiceHub</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-1"></div>
+        <div class="gradient-2"></div>
+        <div class="gradient-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-dashboard">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="logo-icon">⚙️</span>
+                <span class="logo-text">ServiceHub</span>
+            </a>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="assigned-requests.html" class="nav-link active">Assigned Requests</a></li>
+                <li><button id="logoutBtn" class="btn btn-secondary">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>Assigned Service Requests</h1>
+            <p>Manage and update your assigned requests</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Requests</option>
+                <option value="Accepted">Accepted</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <!-- Requests List -->
+        <div id="requestsList" class="requests-container">
+            <p class="empty-state">No assigned requests.</p>
+        </div>
+    </main>
+
+    <!-- Request Detail Modal -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close">&times;</span>
+            <div id="requestDetail"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 ServiceHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/script.js"></script>
+    <script>
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || currentUser.role !== 'provider') {
+            window.location.href = '../auth/provider-login.html';
+        }
+
+        let allRequests = [];
+
+        function loadRequests() {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            allRequests = requests.filter(r => r.assignedProviderId === currentUser.id);
+            displayRequests(allRequests);
+        }
+
+        function displayRequests(requestsToShow) {
+            const requestsList = document.getElementById('requestsList');
+
+            if (requestsToShow.length === 0) {
+                requestsList.innerHTML = '<p class="empty-state">No assigned requests. <a href="dashboard.html">Find requests to accept</a></p>';
+                return;
+            }
+
+            requestsList.innerHTML = requestsToShow.map(req => `
+                <div class="request-card">
+                    <div class="request-card-header">
+                        <h3>${req.customerName}</h3>
+                        <span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span>
+                    </div>
+                    <div class="request-card-body">
+                        <p><strong>Service:</strong> ${req.serviceType}</p>
+                        <p><strong>Description:</strong> ${req.description.substring(0, 100)}...</p>
+                        <p><strong>Priority:</strong> ${req.priority}</p>
+                        <p><strong>Location:</strong> ${req.address}</p>
+                        <p><strong>Contact:</strong> ${req.phone}</p>
+                        ${req.budget ? `<p><strong>Budget:</strong> ₹${req.budget}</p>` : ''}
+                    </div>
+                    <div class="request-card-footer">
+                        <button onclick="viewRequest(${req.id})" class="btn btn-small">View Details</button>
+                        ${req.status !== 'Completed' ? `<button onclick="updateStatus(${req.id})" class="btn btn-small">Update Status</button>` : '<span class="badge-completed">✓ Completed</span>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterRequests() {
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allRequests.filter(req => {
+                const matchesStatus = !statusFilter || req.status === statusFilter;
+                return matchesStatus;
+            });
+
+            displayRequests(filtered);
+        }
+
+        window.viewRequest = function(requestId) {
+            const request = allRequests.find(r => r.id === requestId);
+            const modal = document.getElementById('requestModal');
+            const detail = document.getElementById('requestDetail');
+
+            detail.innerHTML = `
+                <div class="request-detail">
+                    <h2>${request.serviceType} - ${request.customerName}</h2>
+                    <div class="detail-status">
+                        <span class="status-badge status-${request.status.toLowerCase()}">${request.status}</span>
+                        <span class="priority-badge priority-${request.priority.toLowerCase()}">${request.priority} Priority</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Service Details</h3>
+                        <p><strong>Description:</strong><br>${request.description}</p>
+                        <p><strong>Preferred Date:</strong> ${request.preferredDate || 'Not specified'}</p>
+                        <p><strong>Budget:</strong> ${request.budget ? '₹' + request.budget : 'Not specified'}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Customer Information</h3>
+                        <p><strong>Name:</strong> ${request.customerName}</p>
+                        <p><strong>Phone:</strong> ${request.phone}</p>
+                        <p><strong>Location:</strong> ${request.address}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Timeline</h3>
+                        <p><strong>Requested:</strong> ${new Date(request.createdDate).toLocaleString()}</p>
+                        <p><strong>Updated:</strong> ${new Date(request.updatedDate).toLocaleString()}</p>
+                    </div>
+
+                    <div class="detail-actions">
+                        ${request.status !== 'Completed' ? `
+                            <button onclick="updateStatus(${request.id})" class="btn btn-primary">Update Status</button>
+                        ` : ''}
+                        <button onclick="completeRequest()" class="btn btn-secondary">Close</button>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        };
+
+        window.updateStatus = function(requestId) {
+            const request = allRequests.find(r => r.id === requestId);
+            const modal = document.getElementById('requestModal');
+            const detail = document.getElementById('requestDetail');
+
+            const statusOptions = ['Accepted', 'In Progress', 'Completed'];
+            const currentIndex = statusOptions.indexOf(request.status);
+
+            detail.innerHTML = `
+                <div class="request-detail">
+                    <h2>Update Request Status</h2>
+                    <p><strong>Current Status:</strong> ${request.status}</p>
+
+                    <div class="status-selector">
+                        <h3>Select New Status</h3>
+                        ${statusOptions.map((status, index) => `
+                            <button 
+                                onclick="confirmStatusUpdate(${requestId}, '${status}')"
+                                class="status-option ${request.status === status ? 'active' : ''}"
+                                ${request.status === status ? 'disabled' : ''}
+                            >
+                                <span class="status-indicator status-${status.toLowerCase()}"></span>
+                                ${status}
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    ${request.status === 'In Progress' ? `
+                        <div class="form-group">
+                            <label for="completionNotes">Completion Notes (Optional)</label>
+                            <textarea id="completionNotes" placeholder="Add any notes about the work completed"></textarea>
+                        </div>
+                    ` : ''}
+
+                    <div class="detail-actions">
+                        <button onclick="loadRequestsModal()" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        };
+
+        window.confirmStatusUpdate = function(requestId, newStatus) {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            const request = requests.find(r => r.id === requestId);
+
+            if (request) {
+                request.status = newStatus;
+                request.updatedDate = new Date().toISOString();
+
+                if (newStatus === 'Completed') {
+                    // Update provider stats
+                    const users = JSON.parse(localStorage.getItem('users')) || [];
+                    const provider = users.find(u => u.id === currentUser.id);
+                    if (provider) {
+                        provider.completedRequests = (provider.completedRequests || 0) + 1;
+                        currentUser.completedRequests = provider.completedRequests;
+                        localStorage.setItem('users', JSON.stringify(users));
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    }
+                }
+
+                localStorage.setItem('requests', JSON.stringify(requests));
+                loadRequests();
+                alert(`Status updated to ${newStatus}`);
+                document.getElementById('requestModal').style.display = 'none';
+            }
+        };
+
+        function loadRequestsModal() {
+            loadRequests();
+            document.getElementById('requestModal').style.display = 'none';
+        }
+
+        window.completeRequest = function() {
+            document.getElementById('requestModal').style.display = 'none';
+        };
+
+        // Modal close
+        const modal = document.getElementById('requestModal');
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // Event listeners
+        document.getElementById('statusFilter').addEventListener('change', filterRequests);
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        });
+
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        if (hamburger) {
+            hamburger.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+            });
+        }
+
+        loadRequests();
+    </script>
+</body>
+</html>

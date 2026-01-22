@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start Guide - ServiceHub</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <style>
+        .guide-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .guide-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .guide-section:last-child {
+            border-bottom: none;
+        }
+        .guide-section h2 {
+            color: #6366f1;
+            margin-bottom: 1rem;
+        }
+        .guide-section h3 {
+            color: #475569;
+            margin: 1rem 0 0.5rem 0;
+        }
+        .code-block {
+            background: #f8fafc;
+            border-left: 4px solid #6366f1;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .credentials {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .cred-card {
+            background: #f0f9ff;
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        .cred-card strong {
+            display: block;
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+        }
+        .step-list {
+            list-style: none;
+            padding: 0;
+        }
+        .step-list li {
+            margin: 0.75rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        .step-list li:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg">
+        <div class="gradient-1"></div>
+        <div class="gradient-2"></div>
+        <div class="gradient-3"></div>
+    </div>
+
+    <nav class="navbar navbar-sm">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-icon">⚙️</span>
+                <span class="logo-text">ServiceHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <main>
+        <div class="guide-container">
+            <h1>🚀 Quick Start Guide</h1>
+            <p style="color: #64748b; font-size: 1.1rem;">Welcome to ServiceHub! Follow this guide to get started.</p>
+
+            <!-- Getting Started Section -->
+            <div class="guide-section">
+                <h2>✨ Getting Started</h2>
+                <ol class="step-list">
+                    <li><strong>Open the Application</strong> - Open <code>index.html</code> in your web browser</li>
+                    <li><strong>Choose Your Role</strong> - Click either "I Need Services" or "I Provide Services"</li>
+                    <li><strong>Login or Register</strong> - Create a new account or use demo credentials below</li>
+                    <li><strong>Start Using</strong> - Follow the role-specific guides below</li>
+                </ol>
+            </div>
+
+            <!-- Demo Accounts -->
+            <div class="guide-section">
+                <h2>👤 Demo Accounts</h2>
+                
+                <h3>Customer Account</h3>
+                <div class="credentials">
+                    <div class="cred-card">
+                        <strong>Email</strong>
+                        customer@demo.com
+                    </div>
+                    <div class="cred-card">
+                        <strong>Password</strong>
+                        password123
+                    </div>
+                </div>
+
+                <h3>Service Provider Accounts</h3>
+                <div class="credentials">
+                    <div class="cred-card">
+                        <strong>Plumber</strong>
+                        plumber@demo.com<br>
+                        password123
+                    </div>
+                    <div class="cred-card">
+                        <strong>Electrician</strong>
+                        electrician@demo.com<br>
+                        password123
+                    </div>
+                    <div class="cred-card">
+                        <strong>Carpenter</strong>
+                        carpenter@demo.com<br>
+                        password123
+                    </div>
+                </div>
+            </div>
+
+            <!-- For Customers -->
+            <div class="guide-section">
+                <h2>👥 For Customers</h2>
+                
+                <h3>Step 1: Login or Register</h3>
+                <p>Visit the customer login page and enter credentials or create a new account</p>
+
+                <h3>Step 2: Create a Service Request</h3>
+                <ol class="step-list">
+                    <li>Click "New Request" from the navigation menu</li>
+                    <li>Select the service type (Plumbing, Electrical, Carpentry, etc.)</li>
+                    <li>Describe your issue in detail</li>
+                    <li>Provide your contact number and location</li>
+                    <li>Set priority level (Normal, High, Urgent)</li>
+                    <li>Optionally set a budget</li>
+                    <li>Click "Submit Request"</li>
+                </ol>
+
+                <h3>Step 3: Track Your Request</h3>
+                <ul class="step-list">
+                    <li><strong>Dashboard:</strong> View request statistics and recent requests</li>
+                    <li><strong>My Requests:</strong> See all your requests with detailed information</li>
+                    <li><strong>Status Updates:</strong> Track progress from Pending to Completed</li>
+                </ul>
+
+                <h3>Request Status Meanings</h3>
+                <div style="margin: 1rem 0;">
+                    <p><span style="background: #fef3c7; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold;">⏳ Pending</span> - Waiting for a provider to accept</p>
+                    <p><span style="background: #dbeafe; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold;">✓ Accepted</span> - Provider has accepted your request</p>
+                    <p><span style="background: #fed7aa; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold;">⚙️ In Progress</span> - Work is underway</p>
+                    <p><span style="background: #d1fae5; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold;">✅ Completed</span> - Service has been completed</p>
+                </div>
+            </div>
+
+            <!-- For Service Providers -->
+            <div class="guide-section">
+                <h2>🔧 For Service Providers</h2>
+                
+                <h3>Step 1: Login or Register</h3>
+                <p>Visit the provider login page and enter credentials or register your business</p>
+
+                <h3>Step 2: Review Available Requests</h3>
+                <ol class="step-list">
+                    <li>Go to your Dashboard</li>
+                    <li>Browse "Available Service Requests" section</li>
+                    <li>View customer details and request description</li>
+                    <li>Check location and priority level</li>
+                </ol>
+
+                <h3>Step 3: Accept Requests</h3>
+                <ol class="step-list">
+                    <li>Click "Accept" button on any available request</li>
+                    <li>Request is now assigned to you</li>
+                    <li>You can now manage the request</li>
+                </ol>
+
+                <h3>Step 4: Manage Your Work</h3>
+                <ol class="step-list">
+                    <li>Go to "Assigned Requests"</li>
+                    <li>View detailed information about each request</li>
+                    <li>Update status as you progress:
+                        <ul style="margin-left: 1rem; margin-top: 0.5rem;">
+                            <li>Accepted → In Progress (when you start work)</li>
+                            <li>In Progress → Completed (when work is done)</li>
+                        </ul>
+                    </li>
+                    <li>Add completion notes (optional)</li>
+                </ol>
+
+                <h3>Step 5: Build Your Profile</h3>
+                <ul class="step-list">
+                    <li>Click "My Profile" to view your business information</li>
+                    <li>Track your completed requests</li>
+                    <li>Monitor your rating as customers rate your service</li>
+                </ul>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="guide-section">
+                <h2>⚡ Key Features</h2>
+                
+                <h3>For Both Users</h3>
+                <ul class="step-list">
+                    <li><strong>Authentication:</strong> Secure login and registration</li>
+                    <li><strong>Dashboard:</strong> Quick overview of your activity</li>
+                    <li><strong>Search & Filter:</strong> Find requests easily</li>
+                    <li><strong>Responsive Design:</strong> Works on all devices</li>
+                    <li><strong>Smooth Animations:</strong> Modern UI/UX</li>
+                </ul>
+
+                <h3>Services Available</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">🔧 Plumbing</div>
+                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">⚡ Electrical</div>
+                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">🪜 Carpentry</div>
+                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">🎨 Painting</div>
+                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">🧹 Cleaning</div>
+                    <div style="text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px;">🚪 Maintenance</div>
+                </div>
+            </div>
+
+            <!-- Tips & Tricks -->
+            <div class="guide-section">
+                <h2>💡 Tips & Tricks</h2>
+                <ul class="step-list">
+                    <li><strong>For Customers:</strong> Provide detailed description for better matches</li>
+                    <li><strong>For Customers:</strong> Set realistic budgets to attract providers</li>
+                    <li><strong>For Providers:</strong> Accept requests quickly to build reputation</li>
+                    <li><strong>For Providers:</strong> Provide regular updates to customers</li>
+                    <li><strong>For Everyone:</strong> Keep contact information updated</li>
+                </ul>
+            </div>
+
+            <!-- Browser Console Tools -->
+            <div class="guide-section">
+                <h2>🛠️ Developer Tools</h2>
+                <p>Press <strong>F12</strong> to open console and use these commands:</p>
+                
+                <h3>Available Commands</h3>
+                <div class="code-block">
+ServiceHub.logData()           // View all stored data
+ServiceHub.exportData()        // Download all data as JSON
+ServiceHub.resetData()         // Clear all data (WARNING)
+ServiceHub.getCurrentUser()    // Get current user info
+ServiceHub.getProviderStats()  // Get provider statistics
+ServiceHub.getCustomerStats()  // Get customer statistics
+                </div>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="guide-section">
+                <h2>❓ Troubleshooting</h2>
+                
+                <h3>Can't Login?</h3>
+                <ul class="step-list">
+                    <li>Check if email and password are correct</li>
+                    <li>Make sure you're using the right account type</li>
+                    <li>Try refreshing the page</li>
+                </ul>
+
+                <h3>Data Not Saving?</h3>
+                <ul class="step-list">
+                    <li>Check if localStorage is enabled in browser</li>
+                    <li>Ensure browser storage is not full</li>
+                    <li>Try clearing cache and cookies</li>
+                </ul>
+
+                <h3>Issues on Mobile?</h3>
+                <ul class="step-list">
+                    <li>Ensure you're using a modern browser</li>
+                    <li>Check your internet connection</li>
+                    <li>Try rotating your device</li>
+                </ul>
+            </div>
+
+            <!-- Footer -->
+            <div class="guide-section" style="text-align: center; border: none;">
+                <p style="color: #64748b;">Ready to get started? <a href="index.html" style="color: #6366f1; font-weight: bold;">Go to Home Page →</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 ServiceHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="assets/script.js"></script>
+</body>
+</html>

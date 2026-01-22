@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Requests - ServiceHub</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-1"></div>
+        <div class="gradient-2"></div>
+        <div class="gradient-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-dashboard">
+        <div class="nav-container">
+            <a href="../index.html" class="nav-logo">
+                <span class="logo-icon">⚙️</span>
+                <span class="logo-text">ServiceHub</span>
+            </a>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                <li><a href="new-request.html" class="nav-link">New Request</a></li>
+                <li><a href="view-requests.html" class="nav-link active">My Requests</a></li>
+                <li><button id="logoutBtn" class="btn btn-secondary">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="dashboard-main">
+        <div class="dashboard-header">
+            <h1>My Service Requests</h1>
+            <p>View and track all your service requests</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="filter-controls">
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input" 
+                placeholder="Search by service type..."
+            >
+            <select id="statusFilter" class="filter-select">
+                <option value="">All Requests</option>
+                <option value="Pending">Pending</option>
+                <option value="Accepted">Accepted</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <!-- Requests List -->
+        <div id="requestsList" class="requests-container">
+            <p class="empty-state">No requests found.</p>
+        </div>
+    </main>
+
+    <!-- Request Detail Modal -->
+    <div id="requestModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="requestDetail"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 ServiceHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="../assets/script.js"></script>
+    <script>
+        // Check if user is logged in
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser || currentUser.role !== 'customer') {
+            window.location.href = '../auth/customer-login.html';
+        }
+
+        let allRequests = [];
+
+        function loadRequests() {
+            const requests = JSON.parse(localStorage.getItem('requests')) || [];
+            allRequests = requests.filter(r => r.customerId === currentUser.id);
+            displayRequests(allRequests);
+        }
+
+        function displayRequests(requestsToShow) {
+            const requestsList = document.getElementById('requestsList');
+
+            if (requestsToShow.length === 0) {
+                requestsList.innerHTML = '<p class="empty-state">No requests found. <a href="new-request.html">Create one now!</a></p>';
+                return;
+            }
+
+            requestsList.innerHTML = requestsToShow.map(req => `
+                <div class="request-card">
+                    <div class="request-card-header">
+                        <h3>${req.serviceType}</h3>
+                        <span class="status-badge status-${req.status.toLowerCase()}">${req.status}</span>
+                    </div>
+                    <div class="request-card-body">
+                        <p><strong>Description:</strong> ${req.description.substring(0, 100)}...</p>
+                        <p><strong>Priority:</strong> ${req.priority}</p>
+                        <p><strong>Location:</strong> ${req.address}</p>
+                        ${req.assignedProviderName ? `<p><strong>Assigned Provider:</strong> ${req.assignedProviderName}</p>` : ''}
+                        <p><strong>Created:</strong> ${new Date(req.createdDate).toLocaleDateString()}</p>
+                    </div>
+                    <div class="request-card-footer">
+                        <button onclick="viewRequest(${req.id})" class="btn btn-small">View Details</button>
+                        ${req.status === 'Pending' ? `<button onclick="cancelRequest(${req.id})" class="btn btn-small btn-danger">Cancel</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterRequests() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allRequests.filter(req => {
+                const matchesSearch = req.serviceType.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || req.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            displayRequests(filtered);
+        }
+
+        window.viewRequest = function(requestId) {
+            const request = allRequests.find(r => r.id === requestId);
+            const modal = document.getElementById('requestModal');
+            const detail = document.getElementById('requestDetail');
+
+            const statusColors = {
+                'Pending': '#FFC107',
+                'Accepted': '#2196F3',
+                'In Progress': '#FF9800',
+                'Completed': '#4CAF50'
+            };
+
+            detail.innerHTML = `
+                <div class="request-detail">
+                    <h2>${request.serviceType}</h2>
+                    <div class="detail-status">
+                        <span class="status-badge status-${request.status.toLowerCase()}">${request.status}</span>
+                        <span class="priority-badge priority-${request.priority.toLowerCase()}">${request.priority} Priority</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Service Details</h3>
+                        <p><strong>Description:</strong><br>${request.description}</p>
+                        <p><strong>Preferred Date:</strong> ${request.preferredDate || 'Not specified'}</p>
+                        <p><strong>Budget:</strong> ${request.budget ? '₹' + request.budget : 'Not specified'}</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>Contact Information</h3>
+                        <p><strong>Your Name:</strong> ${request.customerName}</p>
+                        <p><strong>Phone:</strong> ${request.phone}</p>
+                        <p><strong>Location:</strong> ${request.address}</p>
+                    </div>
+
+                    ${request.assignedProviderName ? `
+                        <div class="detail-section">
+                            <h3>Assigned Provider</h3>
+                            <p><strong>Name:</strong> ${request.assignedProviderName}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="detail-section">
+                        <h3>Timeline</h3>
+                        <p><strong>Created:</strong> ${new Date(request.createdDate).toLocaleString()}</p>
+                        <p><strong>Updated:</strong> ${new Date(request.updatedDate).toLocaleString()}</p>
+                    </div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        };
+
+        window.cancelRequest = function(requestId) {
+            if (confirm('Are you sure you want to cancel this request?')) {
+                const requests = JSON.parse(localStorage.getItem('requests')) || [];
+                const request = requests.find(r => r.id === requestId);
+                if (request) {
+                    request.status = 'Cancelled';
+                    localStorage.setItem('requests', JSON.stringify(requests));
+                    loadRequests();
+                }
+            }
+        };
+
+        // Modal close
+        const modal = document.getElementById('requestModal');
+        document.querySelector('.close').onclick = function() {
+            modal.style.display = 'none';
+        };
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterRequests);
+        document.getElementById('statusFilter').addEventListener('change', filterRequests);
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        });
+
+        // Hamburger menu
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        if (hamburger) {
+            hamburger.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+            });
+        }
+
+        loadRequests();
+    </script>
+</body>
+</html>
